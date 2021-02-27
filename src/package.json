@@ -1,0 +1,28 @@
+{
+  "name": "discoder-bot",
+  "version": "1.0.0",
+  "description": "A template code execution discord bot.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "TODO"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhburns/discoder-bot.git"
+  },
+  "author": "Jonathan Burns",
+  "license": "MIT",
+  "homepage": "https://github.com/jhburns/discoder-bot#readme",
+  "engines": {
+    "node": ">=14.16.0",
+    "npm": ">=6.14.11"
+  },
+  "type": "module",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "docker-modem": "^2.1.4",
+    "dotenv": "^8.2.0",
+    "winston": "^3.3.3"
+  }
+}
