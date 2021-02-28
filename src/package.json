@@ -4,7 +4,7 @@
   "description": "A template code execution discord bot.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node -r dotenv/config index.js",
     "test": "TODO"
   },
   "repository": {
@@ -21,7 +21,7 @@
   "type": "module",
   "dependencies": {
     "discord.js": "^12.5.1",
-    "docker-modem": "^2.1.4",
+    "dockerode": "^3.2.1",
     "dotenv": "^8.2.0",
     "winston": "^3.3.3"
   }

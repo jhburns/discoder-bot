@@ -1,16 +1,16 @@
 import discord from "discord.js";
+import Dockerode from "dockerode";
 import dotenv from "dotenv";
 import winston from "winston";
 
-import ping from "./commands/ping.js";
-
 // Register commands
-const commands = [ping];
+import help from "./commands/help.js";
+import ping from "./commands/ping.js";
+import racket from "./commands/racket.js";
 
-// Load .env file,
-// DISCORD_AUTH_TOKEN can also be set in the environment
-dotenv.config();
+const commands = [help, ping, racket];
 
+// Check if auth token exists
 if (process.env.DISCORD_AUTH_TOKEN === undefined) {
   throw "Error: DISCORD_AUTH_TOKEN environment variable is unset.";
 }
@@ -26,14 +26,16 @@ const logger = winston.createLogger({
   ]
 });
 
+// Connect to docker socket
+const docker = new Dockerode({ socketPath: "/var/run/docker.sock" });
+
 // Initialize discord bot
 const client = new discord.Client();
-const sigil = "$";
 
 // Print ready info
 client.on("ready", () => {
   logger.info(`Logged in as ${client.user.tag}!`);
-  logger.info(`Registered commands: ${commands.map(c => sigil + c.name).join()}.`);
+  logger.info(`Registered commands: ${commands.map(c => '$' + c.name).join(", ")}.`);
 
   // Set status of help information
   client.user.setActivity("$help - https://racket-lang.org/")
@@ -43,11 +45,11 @@ client.on("ready", () => {
 
 // Catch network errors, and unhandled errors
 client.on('shardError', error => {
-  logger.error("A websocket connection encountered an error: " + error);
+  logger.error("A websocket connection encountered an error: ", error);
 });
 
 process.on("unhandledRejection", error => {
-  logger.error("Unhandled promise rejection:" + error);
+  logger.error("Unhandled promise rejection:", error);
 });
 
 // Trigger when a message is received
@@ -58,28 +60,29 @@ client.on("message", msg => {
   }
 
   // Check if the message starts with an '$'
-  if (msg.content.substring(0, 1) !== sigil) {
+  if (msg.content.substring(0, 1) !== '$') {
     return;
   }
 
   // Remove the '!'
   const content = msg.content.substring(1);
-  const splitContent = content.split(' ');
   let currentName = "";
+  let body = "";
 
-  // Check a command name exists, and update currentName if it does
-  if (splitContent.length > 0) {
-    currentName = splitContent[0].toLowerCase();
-    splitContent.shift();
+  // Split the content into the command name, and body
+  let i = 0;
+  while (content.length > i && !content[i].match(/\s+/)) {
+    i++;
   }
 
-  const parsedContent = splitContent.join(' ');
+  currentName = content.substr(0, i);
+  body = content.substr(i + 1);
 
   // Check if any command matches the name
   // And if so, call its callback
   for (const command of commands) {
     if (currentName === command.name) {
-      const _ignorePromise = command.callback({ msg, client, logger, commands, parsedContent });
+      const _ignorePromise = command.callback({ msg, client, logger, commands, body, commands, docker });
     }
   }
 });
