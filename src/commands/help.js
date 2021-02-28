@@ -9,7 +9,6 @@ export default {
       const embedStart = new discord.MessageEmbed()
         .setColor("LIGHT_GREY")
         .setTitle("Discoder Bot Help")
-        .setURL("https://github.com/jhburns/discoder-bot");
 
       const embedFields = commands.reduce((acc, cur) => {
         return acc.addFields(
@@ -17,13 +16,16 @@ export default {
           // Forces a two column layout
           { name: "\u200B", value: "\u200B", inline: true },
           // Zero width spaces used to prevent backticks inside the codeblock from being absorbed
-          { name: "Usage", value: `\`\`\`\u200B${cur.usage}\u200B\`\`\``, inline: true },
+          { name: "Usage", value: "```\u200B" + cur.usage + "\u200B```", inline: true },
         );
       }, embedStart);
 
-      const embedFooter = embedFields.addField("Racket help", "https://racket-lang.org/");
+      const embedLinks = embedFields.addFields(
+        { name: "Language Reference: ", value: "https://racket-lang.org/" },
+        { name: "Bot Source: ", value: "https://github.com/jhburns/discoder-bot" },
+      );
 
-      await msg.channel.send(embedFooter);
+      await msg.channel.send(embedLinks);
     } catch (error) {
       logger.error(error);
     }

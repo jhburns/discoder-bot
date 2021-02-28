@@ -1,6 +1,5 @@
 import discord from "discord.js";
 import Dockerode from "dockerode";
-import dotenv from "dotenv";
 import winston from "winston";
 
 // Register commands

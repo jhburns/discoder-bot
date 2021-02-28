@@ -1,3 +1,5 @@
+import discord from "discord.js";
+
 class ParseError extends Error {
   constructor(message) {
     super(message);
@@ -5,12 +7,12 @@ class ParseError extends Error {
   }
 }
 
-// TODO: this has to be tested 
-function parseCode(content) {
+// TODO: this has to be tested
+function parseCodeblock(content) {
   content = content.trim();
 
   if (content === "") {
-    throw new ParseError("This command requires an argument, which should be a codeblock.");
+    throw new ParseError("This command requires one argument, which should be a codeblock.");
   }
 
   // Check if code is in triple backticks
@@ -77,4 +79,40 @@ function parseCode(content) {
   throw new ParseError("Argument needs to be wrapped in backticks (`).");
 }
 
-export default { parseCode, ParseError };
+async function sendParseError(msg, error, logger) {
+  try {
+    const embed = new discord.MessageEmbed()
+      .attachFiles(["./images/x.png"])
+      .setColor("RED")
+      // Called code extraction to distinguish from when the language is actually parsed
+      .setTitle("Code Extraction Failed")
+      .setThumbnail("attachment://x.png")
+      .addFields(
+        { name: "Issue", value: error, inline: true },
+        { name: 'About Markdown', value: "https://support.discord.com/hc/en-us/articles/210298617" + 
+          "-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-", inline: true }
+      )
+      .setFooter("Try the '$help' command for more information.");
+
+    await msg.channel.send(embed);
+  } catch (error) {
+   logger.error(error); 
+  }
+}
+
+async function sendSuccess(msg, output, logger) {
+  try {
+    const embed = new discord.MessageEmbed()
+      .attachFiles(["./images/check.png"])
+      .setColor("GREEN")
+      .setTitle("Successfully Exited")
+      .setThumbnail("attachment://check.png")
+      .addField("Output", "```" + output + "```");
+
+    await msg.channel.send(embed);
+  } catch {
+    logger.error(error);
+  }
+}
+
+export default { parseCodeblock, ParseError, sendParseError, sendSuccess };
