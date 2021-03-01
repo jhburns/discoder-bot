@@ -9,9 +9,10 @@ export default {
   callback: async ({ msg, logger, docker, body }) => {
       try {
         const code = helpers.parseCodeblock(body);
+        const codeWithLang = "#lang racket/base\n" + code;
 
         try {
-          const stdout = await sandbox.run(docker, code);
+          const stdout = await sandbox.run(docker, codeWithLang, process.env.RACKET_IMAGE_NAME, ".rkt");
           await msg.channel.send(helpers.makeSuccess(helpers.sanitizeOutput(stdout)));
         } catch (error) {
           logger.error(error);

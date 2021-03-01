@@ -1,7 +1,5 @@
 FROM racket/racket:8.0-full
 
-WORKDIR /home/
+WORKDIR /code/
 
-RUN echo '#lang racket\n(display "Hello, World!\n")' > hello.rkt
-
-CMD ["racket", "-t", "hello.rkt"]
+CMD ["racket", "-t", "source.rkt"]

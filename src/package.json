@@ -23,6 +23,7 @@
     "discord.js": "^12.5.1",
     "dockerode": "^3.2.1",
     "dotenv": "^8.2.0",
+    "tmp-promise": "^3.0.2",
     "winston": "^3.3.3"
   }
 }

@@ -104,7 +104,7 @@ function makeSuccess(output) {
     return new discord.MessageEmbed()
       .attachFiles(["./images/check.png"])
       .setColor("GREEN")
-      .setTitle("Successfully Exited")
+      .setTitle("Exited Successfully")
       .setThumbnail("attachment://check.png")
       .addField("Output", "```" + output + "```");
 }

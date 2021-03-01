@@ -1,6 +1,7 @@
 import discord from "discord.js";
 import Dockerode from "dockerode";
 import winston from "winston";
+import sandbox from "./utils/sandbox.js";
 
 // Register commands
 import help from "./commands/help.js";
@@ -13,6 +14,9 @@ const commands = [help, ping, racket];
 if (process.env.DISCORD_AUTH_TOKEN === undefined) {
   throw "Error: DISCORD_AUTH_TOKEN environment variable is unset.";
 }
+
+// Start sandbox
+sandbox.init();
 
 // Configure logger settings
 const logger = winston.createLogger({
