@@ -12,13 +12,13 @@ export default {
 
         try {
           const stdout = await sandbox.run(docker, code);
-          await msg.channel.send(await helpers.makeSuccess(stdout));
+          await msg.channel.send(helpers.makeSuccess(helpers.sanitizeOutput(stdout)));
         } catch (error) {
           logger.error(error);
         }
       } catch (error) {
         try {
-          await msg.channel.send(await helpers.makeParseError(error));
+          await msg.channel.send(helpers.makeParseError(error));
         } catch (error) {
           logger.error(error);
         } 

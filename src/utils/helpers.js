@@ -80,8 +80,13 @@ function parseCodeblock(content) {
   throw new ParseError("Argument needs to be wrapped in backticks (`).");
 }
 
-async function makeParseError(error) {
-    const embed = new discord.MessageEmbed()
+function sanitizeOutput(output) {
+  // Replace regular U+0060 grave accent marks with U+02CB version that Discord ignores
+  return output.replace("```", "ˋˋˋ");
+}
+
+function makeParseError(error) {
+    return new discord.MessageEmbed()
       .attachFiles(["./images/x.png"])
       .setColor("RED")
       // Called code extraction to distinguish from when the language is actually parsed
@@ -93,19 +98,15 @@ async function makeParseError(error) {
           "-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-", inline: true }
       )
       .setFooter("Try the '$help' command for more information.");
-
-    return embed;
 }
 
-async function makeSuccess(output) {
-    const embed = new discord.MessageEmbed()
+function makeSuccess(output) {
+    return new discord.MessageEmbed()
       .attachFiles(["./images/check.png"])
       .setColor("GREEN")
       .setTitle("Successfully Exited")
       .setThumbnail("attachment://check.png")
       .addField("Output", "```" + output + "```");
-
-    return embed;
 }
 
-export default { parseCodeblock, ParseError, makeSuccess, makeParseError };
+export default { parseCodeblock, ParseError, makeSuccess, makeParseError, sanitizeOutput };
