@@ -95,13 +95,25 @@ function makeSnippet(code) {
   }
 
   const maxLength = 30;
-  let snippet = code.split("\n")[0].substring(0, maxLength);
+  let lines = code.split('\n');
+
+  // Fetch the first non-empty line
+  let i = 0;
+  while (i < lines.length && lines[i].trim() === "") {
+    i++;
+  }
+
+  let snippet = lines[i].substring(0, maxLength);
 
   if (code.length > maxLength) {
     snippet += "...";
   }
 
-  return "```lisp\n" + snippet + "```";
+  if (snippet.trim() === "") {
+    return "``` ```";
+  }
+
+  return "```lisp\n" + (snippet)  + "```";
 }
 
 function makeParseError(error) {
