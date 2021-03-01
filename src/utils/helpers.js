@@ -22,10 +22,11 @@ function parseCodeblock(content) {
 
 
     // Remove the language alias if it exists
-    const isLetter = (s) => s.length === 1 && s.match(/[a-z]/i);
+    // Matches only lowercase letters, and numbers
+    const isAlphanumeric = (s) => s.length === 1 && s.match(/[a-z0-9]/i);
     let i = 0;
 
-    while (isLetter(content.substring(i, i + 1))) {
+    while (isAlphanumeric(content.substring(i, i + 1))) {
       i++;
     }
 
@@ -79,8 +80,7 @@ function parseCodeblock(content) {
   throw new ParseError("Argument needs to be wrapped in backticks (`).");
 }
 
-async function sendParseError(msg, error, logger) {
-  try {
+async function makeParseError(error) {
     const embed = new discord.MessageEmbed()
       .attachFiles(["./images/x.png"])
       .setColor("RED")
@@ -94,14 +94,10 @@ async function sendParseError(msg, error, logger) {
       )
       .setFooter("Try the '$help' command for more information.");
 
-    await msg.channel.send(embed);
-  } catch (error) {
-   logger.error(error); 
-  }
+    return embed;
 }
 
-async function sendSuccess(msg, output, logger) {
-  try {
+async function makeSuccess(output) {
     const embed = new discord.MessageEmbed()
       .attachFiles(["./images/check.png"])
       .setColor("GREEN")
@@ -109,10 +105,7 @@ async function sendSuccess(msg, output, logger) {
       .setThumbnail("attachment://check.png")
       .addField("Output", "```" + output + "```");
 
-    await msg.channel.send(embed);
-  } catch {
-    logger.error(error);
-  }
+    return embed;
 }
 
-export default { parseCodeblock, ParseError, sendParseError, sendSuccess };
+export default { parseCodeblock, ParseError, makeSuccess, makeParseError };
