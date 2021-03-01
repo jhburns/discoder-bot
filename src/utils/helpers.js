@@ -81,8 +81,27 @@ function parseCodeblock(content) {
 }
 
 function sanitizeOutput(output) {
+  if (output === "") {
+    return ' ';
+  }
+
   // Replace regular U+0060 grave accent marks with U+02CB version that Discord ignores
   return output.replace("```", "ˋˋˋ");
+}
+
+function makeSnippet(code) {
+  if (code === "") {
+    return "``` ```";
+  }
+
+  const maxLength = 30;
+  let snippet = code.split("\n")[0].substring(0, maxLength);
+
+  if (code.length > maxLength) {
+    snippet += "...";
+  }
+
+  return "```lisp\n" + snippet + "```";
 }
 
 function makeParseError(error) {
@@ -100,13 +119,29 @@ function makeParseError(error) {
       .setFooter("Try the '$help' command for more information.");
 }
 
-function makeSuccess(output) {
-    return new discord.MessageEmbed()
-      .attachFiles(["./images/check.png"])
-      .setColor("GREEN")
-      .setTitle("Exited Successfully")
-      .setThumbnail("attachment://check.png")
-      .addField("Output", "```" + output + "```");
+function makeRunning(code) {
+  return new discord.MessageEmbed()
+    .attachFiles(["./images/spinner.gif"])
+    .setColor("BLUE")
+    .setTitle("Running Code")
+    .setThumbnail("attachment://spinner.gif")
+    .addField("Snippet", makeSnippet(code))
 }
 
-export default { parseCodeblock, ParseError, makeSuccess, makeParseError, sanitizeOutput };
+function makeSuccess(code, executionInfo) {
+  // First index is seconds, second is nanoseconds
+  const timeFormatted = (executionInfo.time[0] + (executionInfo.time[1] / 1000000000)).toFixed(2);
+
+  return new discord.MessageEmbed()
+    .attachFiles(["./images/check.png"])
+    .setColor("GREEN")
+    .setTitle("Exited Successfully")
+    .setThumbnail("attachment://check.png")
+    .addFields(
+      { name: "Snippet", value: makeSnippet(code) }, 
+      { name: "Output", value: "```" + sanitizeOutput(executionInfo.stdout) + "```" 
+        + `Approximate execution time: ${timeFormatted} seconds.` },
+    );
+}
+
+export default { parseCodeblock, ParseError, makeSuccess, makeParseError, makeRunning, sanitizeOutput };

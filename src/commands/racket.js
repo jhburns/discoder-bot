@@ -1,5 +1,6 @@
 import helpers from "../utils/helpers.js";
 import sandbox from "../utils/sandbox.js";
+import help from "./help.js";
 
 export default {
   name: "racket",
@@ -12,8 +13,16 @@ export default {
         const codeWithLang = "#lang racket/base\n" + code;
 
         try {
-          const stdout = await sandbox.run(docker, codeWithLang, process.env.RACKET_IMAGE_NAME, ".rkt");
-          await msg.channel.send(helpers.makeSuccess(helpers.sanitizeOutput(stdout)));
+          // Send 'In Progress' embed
+          const responsePromise = msg.channel.send(helpers.makeRunning(code));
+          
+          const executionPromise = sandbox.run(docker, codeWithLang, process.env.RACKET_IMAGE_NAME, ".rkt");
+
+          // Await for code to finish execution, and then delete in-progress message 
+          const executionInfo = await executionPromise;
+          (await responsePromise).delete();
+
+          await msg.channel.send(helpers.makeSuccess(code, executionInfo));
         } catch (error) {
           logger.error(error);
         }

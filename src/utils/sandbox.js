@@ -27,6 +27,9 @@ async function run(docker, code, image, ext) {
 
     const stream = await container.attach({ stream: true, stdout: true, stderr: true });
 
+    // For timing code execution speed
+    const startTime = process.hrtime();
+
     await container.start();
 
     const stdout = await new Promise((resolve, reject) => {
@@ -37,7 +40,7 @@ async function run(docker, code, image, ext) {
       stream.on('error', (error) => reject(error));
     });
 
-    return stdout;
+    return { stdout, time: process.hrtime(startTime) };
   } finally {
     cleanup();
   }

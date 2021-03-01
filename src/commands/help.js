@@ -20,12 +20,13 @@ export default {
         );
       }, embedStart);
 
-      const embedLinks = embedFields.addFields(
-        { name: "Language Reference: ", value: "https://racket-lang.org/" },
-        { name: "Bot Source: ", value: "https://github.com/jhburns/discoder-bot" },
-      );
+      const embedExtra = embedFields.addFields(
+          { name: "Language Reference: ", value: "https://racket-lang.org/" },
+          { name: "Bot Source: ", value: "https://github.com/jhburns/discoder-bot" },
+        )
+        .setFooter("Tip: use the 'lisp' alias in codeblocks for highlighting.");
 
-      await msg.channel.send(embedLinks);
+      await msg.channel.send(embedExtra);
     } catch (error) {
       logger.error(error);
     }
