@@ -22,7 +22,13 @@ async function run(docker, code, image, ext) {
       Tty: true,
       Image: image,
       // Source is mounted read-only
-      HostConfig: { Binds: [`${sourcePath}:/code/source${ext}:ro`] },
+      HostConfig: {
+        Binds: [`${sourcePath}:/code/source${ext}:ro`],
+        AutoRemove: true,
+        NetworkMode: "none",
+      },
+      // Max number of columns discord will display a code block as
+      Env: ["COLUMNS=56"],
     });
 
     const stream = await container.attach({ stream: true, stdout: true, stderr: true });
@@ -32,7 +38,9 @@ async function run(docker, code, image, ext) {
 
     await container.start();
 
-    const stdout = await new Promise((resolve, reject) => {
+    // Wait for the container to close the output stream
+    // Since a pseudo-terminal is allocated, both stdout and stderr are combined
+    const output = await new Promise((resolve, reject) => {
       const chunks = [];
 
       stream.on('data', (chunk) => chunks.push(chunk))
@@ -40,7 +48,15 @@ async function run(docker, code, image, ext) {
       stream.on('error', (error) => reject(error));
     });
 
-    return { stdout, time: process.hrtime(startTime) };
+    // Wait for the container to terminate, so the get the exit code
+    const { Error, StatusCode: exitCode } = await container.wait();
+    if (Error !== null) {
+      throw Error;
+    }
+
+    console.log(exitCode);
+
+    return { output, exitCode, time: process.hrtime(startTime) };
   } finally {
     cleanup();
   }

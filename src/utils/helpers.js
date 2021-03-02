@@ -1,18 +1,18 @@
 import discord from "discord.js";
 
-class ParseError extends Error {
+class CodeExtractionError extends Error {
   constructor(message) {
     super(message);
-    this.name = "ParseError";
+    this.name = "CodeExtractionError";
   }
 }
 
 // TODO: this has to be tested
-function parseCodeblock(content) {
+function extractCode(content) {
   content = content.trim();
 
   if (content === "") {
-    throw new ParseError("This command requires one argument, which should be a codeblock.");
+    throw new CodeExtractionError("This command requires one argument, which should be a codeblock.");
   }
 
   // Check if code is in triple backticks
@@ -45,7 +45,7 @@ function parseCodeblock(content) {
     let j = 0;
     while (true) {
       if (content.length === j) {
-        throw new ParseError("Argument lacks closing triple backticks (```).");
+        throw new CodeExtractionError("Argument lacks closing triple backticks (```).");
       }
 
       if (content.substring(j, j + 3) === "```") {
@@ -66,7 +66,7 @@ function parseCodeblock(content) {
     let i = 0;
     while (true) {
       if (content.length === i) {
-        throw new ParseError("Argument lacks a closing backtick (`).");
+        throw new CodeExtractionError("Argument lacks a closing backtick (`).");
       }
 
       if (content[i] === '`') {
@@ -77,7 +77,7 @@ function parseCodeblock(content) {
     }
   }
 
-  throw new ParseError("Argument needs to be wrapped in backticks (`).");
+  throw new CodeExtractionError("Argument needs to be wrapped in backticks (`).");
 }
 
 function sanitizeOutput(output) {
@@ -90,30 +90,35 @@ function sanitizeOutput(output) {
 }
 
 function makeSnippet(code) {
-  if (code === "") {
+  if (code.trim() === "") {
     return "``` ```";
   }
 
   const maxLength = 30;
-  let lines = code.split('\n');
+  const lines = code.split('\n');
 
-  // Fetch the first non-empty line
-  let i = 0;
-  while (i < lines.length && lines[i].trim() === "") {
-    i++;
-  }
+  // Skip any empty lines
+  const nonEmptyLines = lines.filter((l) => l.trim() !== "");
 
-  let snippet = lines[i].substring(0, maxLength);
-
-  if (code.length > maxLength) {
-    snippet += "...";
-  }
-
-  if (snippet.trim() === "") {
+  // If all lines are empty return a plain codeblock
+  if (nonEmptyLines.length === 0) {
     return "``` ```";
-  }
+  } else {
+    // Else return the first line, with 'lisp' alias
+    let snippet = nonEmptyLines[0].substring(0, maxLength);
 
-  return "```lisp\n" + (snippet)  + "```";
+    if (code.length > maxLength) {
+      snippet += "...";
+    }
+
+    return "```lisp\n" + snippet + "```";
+  }
+}
+
+function formatTime(time) {
+  const timeFormatted = (time[0] + (time[1] / 1000000000)).toFixed(2);
+
+  return `Approximate task time: ${timeFormatted} seconds.`;
 }
 
 function makeParseError(error) {
@@ -125,7 +130,7 @@ function makeParseError(error) {
       .setThumbnail("attachment://x.png")
       .addFields(
         { name: "Issue", value: error, inline: true },
-        { name: 'About Markdown', value: "https://support.discord.com/hc/en-us/articles/210298617" + 
+        { name: 'Markdown Help', value: "https://support.discord.com/hc/en-us/articles/210298617" + 
           "-Markdown-Text-101-Chat-Formatting-Bold-Italic-Underline-", inline: true }
       )
       .setFooter("Try the '$help' command for more information.");
@@ -140,9 +145,8 @@ function makeRunning(code) {
     .addField("Snippet", makeSnippet(code))
 }
 
-function makeSuccess(code, executionInfo) {
+function makeSuccessful(code, executionInfo) {
   // First index is seconds, second is nanoseconds
-  const timeFormatted = (executionInfo.time[0] + (executionInfo.time[1] / 1000000000)).toFixed(2);
 
   return new discord.MessageEmbed()
     .attachFiles(["./images/check.png"])
@@ -151,9 +155,40 @@ function makeSuccess(code, executionInfo) {
     .setThumbnail("attachment://check.png")
     .addFields(
       { name: "Snippet", value: makeSnippet(code) }, 
-      { name: "Output", value: "```" + sanitizeOutput(executionInfo.stdout) + "```" 
-        + `Approximate execution time: ${timeFormatted} seconds.` },
+      { name: "Output", value: "```" + sanitizeOutput(executionInfo.output) + "```" 
+        + formatTime(executionInfo.time) },
     );
 }
 
-export default { parseCodeblock, ParseError, makeSuccess, makeParseError, makeRunning, sanitizeOutput };
+function makeUnsuccessful(code, executionInfo) {
+  // Determine reason for exiting non-zero
+  let reason = "";
+  switch (executionInfo.exitCode) {
+    case 137:
+      reason = "Code Killed";
+      break;
+    default:
+      reason = "Code Failed Normally";
+  }
+
+  return new discord.MessageEmbed()
+    .attachFiles(["./images/x.png"])
+    .setColor("RED")
+    .setTitle("Exited Unsuccessfully")
+    .setThumbnail("attachment://x.png")
+    .addFields(
+      { name: "Snippet", value: makeSnippet(code) },
+      { name: reason + ` (Exit Code ${executionInfo.exitCode})`, 
+        value: "```" + sanitizeOutput(executionInfo.output) + "```" + formatTime(executionInfo.time) },
+    );
+}
+
+export default {
+  CodeExtractionError,
+  extractCode,
+  makeSuccessful,
+  makeUnsuccessful,
+  makeParseError,
+  makeRunning,
+  sanitizeOutput,
+};

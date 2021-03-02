@@ -1,6 +1,5 @@
 import helpers from "../utils/helpers.js";
 import sandbox from "../utils/sandbox.js";
-import help from "./help.js";
 
 export default {
   name: "racket",
@@ -9,29 +8,34 @@ export default {
   usage: "$racket `your code`",
   callback: async ({ msg, logger, docker, body }) => {
       try {
-        const code = helpers.parseCodeblock(body);
+        const code = helpers.extractCode(body);
         const codeWithLang = "#lang racket/base\n" + code;
 
-        try {
-          // Send 'In Progress' embed
-          const responsePromise = msg.channel.send(helpers.makeRunning(code));
-          
-          const executionPromise = sandbox.run(docker, codeWithLang, process.env.RACKET_IMAGE_NAME, ".rkt");
+        // Send 'In Progress' embed
+        const responsePromise = msg.channel.send(helpers.makeRunning(code));
+        
+        const executionPromise = sandbox.run(docker, codeWithLang, process.env.RACKET_IMAGE_NAME, ".rkt");
 
-          // Await for code to finish execution, and then delete in-progress message 
-          const executionInfo = await executionPromise;
-          (await responsePromise).delete();
+        // Await for code to finish execution, and then delete in-progress message 
+        // TODO: fix if this throws so the in progress message is changed
+        const executionInfo = await executionPromise;
+        (await responsePromise).delete();
 
-          await msg.channel.send(helpers.makeSuccess(code, executionInfo));
-        } catch (error) {
-          logger.error(error);
+        if (executionInfo.exitCode === 0) {
+          await msg.channel.send(helpers.makeSuccessful(code, executionInfo));
+        } else {
+          await msg.channel.send(helpers.makeUnsuccessful(code, executionInfo));
         }
       } catch (error) {
-        try {
-          await msg.channel.send(helpers.makeParseError(error));
-        } catch (error) {
+        if (error instanceof helpers.CodeExtractionError) {
+          try {
+            await msg.channel.send(helpers.makeParseError(error.message));
+          } catch (error) {
+            logger.error(error);
+          } 
+        } else {
           logger.error(error);
-        } 
+        }
       }
   },
 };
