@@ -198,7 +198,7 @@ function makeUnsuccessful(code, executionInfo) {
 
   if (isKilled) {
     embed.setFooter("Sorry, your code was likely terminated due to timing out or running out of memory. " +
-      `It can run for at most ${sandbox.softTimeout} seconds, ` + 
+      `It can run for around ${sandbox.softTimeout} seconds, ` + 
       `and use at most ${sandbox.memoryLimit + sandbox.swapLimit} MB.`);
   }
 

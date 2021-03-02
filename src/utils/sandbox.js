@@ -11,8 +11,10 @@ function init() {
 }
 
 // In seconds
+// If the timeouts are too close to each other,
+// Then the hard one may randomly be done instead of soft
 const hardTimeout = 22;
-const softTimeout = 20;
+const softTimeout = 18;
 
 // In MB
 const memoryLimit = 150;
@@ -43,11 +45,11 @@ async function run(docker, code, image, ext) {
         // 250 MB
         MemorySwap: swapLimit * 1000000,
         SecurityOpt: ["no-new-privileges:true"],
-        //CapDrop: ["ALL"],
+        CapDrop: ["ALL"],
         Privileged: false,
         // 1024 is the default 
         CpuShares: 256,
-        // 
+        // About 30% of a single core CPU
         CpuPeriod: 100000,
         CpuQuota: 30000
       },
