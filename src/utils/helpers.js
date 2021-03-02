@@ -1,4 +1,5 @@
 import discord from "discord.js";
+import sandbox from "./sandbox.js";
 
 class CodeExtractionError extends Error {
   constructor(message) {
@@ -85,8 +86,15 @@ function sanitizeOutput(output) {
     return ' ';
   }
 
+  // Limit to 800 characters and 16 line-breaks
+  let cropped = output.substring(0, 800).split('\n').slice(0, 16).join('\n');
+
+  if (cropped.length < output.length) {
+    cropped = cropped.substring(0, cropped.length - 3) + "...";
+  }
+
   // Replace regular U+0060 grave accent marks with U+02CB version that Discord ignores
-  return output.replace("```", "ˋˋˋ");
+  return cropped.replace("```", "ˋˋˋ");
 }
 
 function makeSnippet(code) {
@@ -163,15 +171,17 @@ function makeSuccessful(code, executionInfo) {
 function makeUnsuccessful(code, executionInfo) {
   // Determine reason for exiting non-zero
   let reason = "";
+  let isKilled = false;
   switch (executionInfo.exitCode) {
     case 137:
       reason = "Code Killed";
+      isKilled = true;
       break;
     default:
       reason = "Code Failed Normally";
   }
 
-  return new discord.MessageEmbed()
+  const embed =  new discord.MessageEmbed()
     .attachFiles(["./images/x.png"])
     .setColor("RED")
     .setTitle("Exited Unsuccessfully")
@@ -181,6 +191,14 @@ function makeUnsuccessful(code, executionInfo) {
       { name: reason + ` (Exit Code ${executionInfo.exitCode})`, 
         value: "```" + sanitizeOutput(executionInfo.output) + "```" + formatTime(executionInfo.time) },
     );
+
+  if (isKilled) {
+    embed.setFooter("Sorry, your code was likely terminated due to timing out or running out of memory. " +
+      `It can run for at most ${sandbox.softTimeout} seconds, ` + 
+      `and use at most ${sandbox.memoryLimit + sandbox.swapLimit} MB.`);
+  }
+
+  return embed;
 }
 
 export default {
