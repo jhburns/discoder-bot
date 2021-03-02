@@ -89,6 +89,7 @@ function sanitizeOutput(output) {
   // Limit to 800 characters and 16 line-breaks
   let cropped = output.substring(0, 800).split('\n').slice(0, 16).join('\n');
 
+  // Add ellipsis if output was shortened
   if (cropped.length < output.length) {
     cropped = cropped.substring(0, cropped.length - 3) + "...";
   }
@@ -177,6 +178,9 @@ function makeUnsuccessful(code, executionInfo) {
       reason = "Code Killed";
       isKilled = true;
       break;
+    case 124:
+      reason = "Code Timed Out";
+      isKilled = true;
     default:
       reason = "Code Failed Normally";
   }
