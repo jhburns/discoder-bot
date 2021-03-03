@@ -181,8 +181,10 @@ function makeUnsuccessful(code, executionInfo) {
     case 124:
       reason = "Code Timed Out";
       isKilled = true;
+      break;
     default:
       reason = "Code Failed Normally";
+      break;
   }
 
   const embed =  new discord.MessageEmbed()

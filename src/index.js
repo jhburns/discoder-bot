@@ -1,7 +1,7 @@
 import discord from "discord.js";
 import Dockerode from "dockerode";
 import winston from "winston";
-import sandbox from "./utils/sandbox.js";
+import tmpPromise from "tmp-promise";
 
 // Register commands
 import help from "./commands/help.js";
@@ -15,8 +15,9 @@ if (process.env.DISCORD_AUTH_TOKEN === undefined) {
   throw "Error: DISCORD_AUTH_TOKEN environment variable is unset.";
 }
 
-// Start sandbox
-sandbox.init();
+// Create folder for temporary files such as source code
+tmpPromise.setGracefulCleanup(); // Cleanup resources on exit
+const tempDir = tmpPromise.dirSync({ prefix: 'discoder-bot_' }); // Created in /tmp on Linux
 
 // Configure logger settings
 const logger = winston.createLogger({
@@ -85,7 +86,16 @@ client.on("message", msg => {
   // And if so, call its callback
   for (const command of commands) {
     if (currentName === command.name) {
-      const _ignorePromise = command.callback({ msg, client, logger, commands, body, commands, docker });
+      const _ignorePromise = command.callback({
+        msg,
+        client,
+        logger,
+        commands,
+        body,
+        commands,
+        docker, 
+        tempDir,
+      });
     }
   }
 });

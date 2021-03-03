@@ -1,15 +1,3 @@
-import { promises as fs } from "fs";
-import tmpPromise from "tmp-promise";
-
-let tempDir = null;
-
-// Cleanup all resources on process end
-tmpPromise.setGracefulCleanup();
-
-function init() {
-  tempDir = tmpPromise.dirSync({ prefix: 'discoder-bot_' });
-}
-
 // In seconds
 // If the timeouts are too close to each other,
 // Then the hard one may randomly be done instead of soft
@@ -20,78 +8,71 @@ const softTimeout = 18;
 const memoryLimit = 150;
 const swapLimit = 250;
 
-async function run(docker, code, image, ext) {  
-  const { path: sourcePath, cleanup } = await tmpPromise.file(
-    { dir: tempDir.name, postfix: ".tmp" }
-  );
-
-  try {
-    await fs.writeFile(sourcePath, code);
-
-    const container = await docker.createContainer({
-      // Combine stdout and stderr into one stream
-      Tty: true,
-      Image: image,
+async function run(docker, image, ext, sourcePath) {  
+  const container = await docker.createContainer({
+    // Combine stdout and stderr into one stream
+    Tty: true,
+    Image: image,
+    HostConfig: {
       // Source is mounted read-only
-      HostConfig: {
-        Binds: [`${sourcePath}:/code/source${ext}:ro`],
-        // Delete container after it terminates
-        AutoRemove: true,
-        // Prevent forkbombs
-        PidsLimit: 256,
-        ReadonlyRootfs: true,
-        // 150 MB
-        Memory: memoryLimit * 1000000,
-        // 250 MB
-        MemorySwap: swapLimit * 1000000,
-        SecurityOpt: ["no-new-privileges:true"],
-        CapDrop: ["ALL"],
-        Privileged: false,
-        // 1024 is the default 
-        CpuShares: 256,
-        // About 30% of a single core CPU
-        CpuPeriod: 100000,
-        CpuQuota: 30000
-      },
-      // Max number of columns discord will display a code block as
-      Env: ["COLUMNS=56", `BOT_TIMEOUT=${softTimeout}`],
-      NetworkDisabled: true,
-    });
+      Binds: [`${sourcePath}:/code/source${ext}:ro`],
+      // Delete container after it terminates
+      AutoRemove: true,
+      // Prevent forkbombs
+      PidsLimit: 256,
+      // Container filesystem is also only read only
+      ReadonlyRootfs: true,
+      // 150 MB
+      Memory: memoryLimit * 1000000,
+      // 250 MB
+      MemorySwap: swapLimit * 1000000,
+      // Means containers have to wait for memory
+      KernelMemory: 0,
+      SecurityOpt: ["no-new-privileges:true"],
+      CapDrop: ["ALL"],
+      Privileged: false,
+      // 1024 is the default 
+      CpuShares: 256,
+      // About 30% of a single core CPU
+      CpuPeriod: 100000,
+      CpuQuota: 30000
+    },
+    // Max number of columns discord will display a code block as
+    Env: ["COLUMNS=56", `BOT_TIMEOUT=${softTimeout}`],
+    NetworkDisabled: true,
+  });
 
-    const stream = await container.attach({ stream: true, stdout: true, stderr: true });
+  const stream = await container.attach({ stream: true, stdout: true, stderr: true });
 
-    // For timing code execution speed
-    const startTime = process.hrtime();
+  // For timing code execution speed
+  const startTime = process.hrtime();
 
-    await container.start();
+  await container.start();
 
-    // Start timeout
-    const timeout = setTimeout(async () => {
-      await container.kill();
-    }, hardTimeout * 1000);
+  // Start timeout
+  const timeout = setTimeout(async () => {
+    await container.kill();
+  }, hardTimeout * 1000);
 
-    // Wait for the container to close the output stream
-    // Since a pseudo-terminal is allocated, both stdout and stderr are combined
-    const output = await new Promise((resolve, reject) => {
-      const chunks = [];
+  // Wait for the container to close the output stream
+  // Since a pseudo-terminal is allocated, both stdout and stderr are combined
+  const output = await new Promise((resolve, reject) => {
+    const chunks = [];
 
-      stream.on('data', (chunk) => chunks.push(chunk))
-      stream.on('end', () => resolve(Buffer.concat(chunks).toString("utf8")));
-      stream.on('error', (error) => reject(error));
-    });
+    stream.on('data', (chunk) => chunks.push(chunk))
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString("utf8")));
+    stream.on('error', (error) => reject(error));
+  });
 
-    // Wait for the container to terminate, so the get the exit code
-    const { Error, StatusCode: exitCode } = await container.wait();
-    clearTimeout(timeout);
+  // Wait for the container to terminate, so the get the exit code
+  const { Error, StatusCode: exitCode } = await container.wait();
+  clearTimeout(timeout);
 
-    if (Error !== null) {
-      throw Error;
-    }
-
-    return { output, exitCode, time: process.hrtime(startTime) };
-  } finally {
-    cleanup();
+  if (Error !== null) {
+    throw Error;
   }
+
+  return { output, exitCode, time: process.hrtime(startTime) };
 }
 
-export default { init, run, softTimeout, memoryLimit, swapLimit };
+export default { run, softTimeout, memoryLimit, swapLimit };
