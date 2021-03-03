@@ -152,6 +152,7 @@ function makeRunning(code) {
     .setTitle("Running Code")
     .setThumbnail("attachment://spinner.gif")
     .addField("Snippet", makeSnippet(code))
+    .setFooter("Tip: use the 'scheme' language in codeblocks for highlighting.");
 }
 
 function makeSuccessful(code, executionInfo) {

@@ -24,7 +24,7 @@ export default {
           { name: "Language Reference: ", value: "https://racket-lang.org/" },
           { name: "Bot Source: ", value: "https://github.com/jhburns/discoder-bot" },
         )
-        .setFooter("Tip: use the 'scheme' alias in codeblocks for highlighting.");
+        .setFooter("Tip: use the 'scheme' language in codeblocks for highlighting.");
 
       await msg.channel.send(embedExtra);
     } catch (error) {

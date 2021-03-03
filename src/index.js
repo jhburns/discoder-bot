@@ -8,8 +8,9 @@ import help from "./commands/help.js";
 import ping from "./commands/ping.js";
 import racket from "./commands/racket.js";
 import examples from "./commands/examples.js";
+import run from "./commands/run.js";
 
-const commands = [help, ping, racket, examples];
+const commands = [help, ping, racket, examples, run];
 
 // Check if auth token exists
 if (process.env.DISCORD_AUTH_TOKEN === undefined) {

@@ -4,25 +4,25 @@ import tmpPromise from "tmp-promise";
 import { promises as fs } from "fs";
 
 export default {
-  name: "racket",
+  name: "run",
   about: "Run your racket code, which should be in a single or multi-line codeblock. " +
-    "The `#lang racket/base` library is added at the top of your code for convenience.",
-  usage: "$racket `your code`",
+    "You can specify a `#lang`.",
+  usage: "$run `your code`",
   callback: async ({ msg, logger, docker, body, tempDir }) => {
     try {
       const code = helpers.extractCode(body);
 
       const { path: sourcePath, cleanup: sourceCleanup, fd: _fd } = await tmpPromise.file(
-        { dir: tempDir.name, prefix: "racket", postfix: ".tmp" }
+        { dir: tempDir.name, prefix: "run", postfix: ".tmp" }
       );
 
       try {
-        await fs.writeFile(sourcePath, "#lang racket/base\n" + code);
+        await fs.writeFile(sourcePath, code);
 
         // Send 'In Progress' embed, and start the sandbox concurrently
         const responsePromise = msg.channel.send(helpers.makeRunning(code));
 
-        const executionPromise = sandbox.evaluate(
+        const executionPromise = sandbox.run(
           docker, process.env.RACKET_IMAGE_NAME, ".rkt", sourcePath
         );
 
@@ -47,7 +47,7 @@ export default {
           await msg.channel.send(helpers.makeParseError(error.message));
         } catch (error) {
           logger.error(error);
-        } 
+        }
       } else {
         logger.error(error);
       }

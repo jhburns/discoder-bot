@@ -8,7 +8,9 @@ const softTimeout = 18;
 const memoryLimit = 150;
 const swapLimit = 250;
 
-async function run(docker, image, ext, sourcePath) {  
+
+
+async function evaluate(docker, image, ext, sourcePath) {  
   const container = await docker.createContainer({
     // Combine stdout and stderr into one stream
     Tty: true,
@@ -73,4 +75,4 @@ async function run(docker, image, ext, sourcePath) {
   return { output, exitCode, time: process.hrtime(startTime) };
 }
 
-export default { run, softTimeout, memoryLimit, swapLimit };
+export default { evaluate, softTimeout, memoryLimit, swapLimit };
