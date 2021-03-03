@@ -26,8 +26,6 @@ async function run(docker, image, ext, sourcePath) {
       Memory: memoryLimit * 1000000,
       // 250 MB
       MemorySwap: swapLimit * 1000000,
-      // Means containers have to wait for memory
-      KernelMemory: 0,
       SecurityOpt: ["no-new-privileges:true"],
       CapDrop: ["ALL"],
       Privileged: false,

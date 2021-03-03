@@ -7,8 +7,9 @@ import tmpPromise from "tmp-promise";
 import help from "./commands/help.js";
 import ping from "./commands/ping.js";
 import racket from "./commands/racket.js";
+import examples from "./commands/examples.js";
 
-const commands = [help, ping, racket];
+const commands = [help, ping, racket, examples];
 
 // Check if auth token exists
 if (process.env.DISCORD_AUTH_TOKEN === undefined) {

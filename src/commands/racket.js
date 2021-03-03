@@ -16,9 +16,9 @@ export default {
           { dir: tempDir.name, postfix: ".tmp" }
         );
 
-        await fs.writeFile(sourcePath, "#lang racket/base\n" + code);
-
         try {
+          await fs.writeFile(sourcePath, "#lang racket/base\n" + code);
+
           // Send 'In Progress' embed, and start the sandbox concurrently
           const responsePromise = msg.channel.send(helpers.makeRunning(code));
 
@@ -27,10 +27,10 @@ export default {
           );
 
           // Await for code to finish execution, and then delete in-progress message 
-          // TODO: fix if this throws so the in progress message is changed
           const executionInfo = await executionPromise;
           (await responsePromise).delete();
 
+          // Send different embed based on whether the process exit successfully or not
           if (executionInfo.exitCode === 0) {
             await msg.channel.send(helpers.makeSuccessful(code, executionInfo));
           } else {

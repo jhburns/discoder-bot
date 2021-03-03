@@ -113,14 +113,14 @@ function makeSnippet(code) {
   if (nonEmptyLines.length === 0) {
     return "``` ```";
   } else {
-    // Else return the first line, with 'lisp' alias
+    // Else return the first line, with 'scheme' alias
     let snippet = nonEmptyLines[0].substring(0, maxLength);
 
     if (code.length > maxLength) {
       snippet += "...";
     }
 
-    return "```lisp\n" + snippet + "```";
+    return "```scheme\n" + snippet + "```";
   }
 }
 
