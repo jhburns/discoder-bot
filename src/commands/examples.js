@@ -6,33 +6,39 @@ export default {
   usage: "$examples",
   callback: async ({ msg, logger }) => {
     try {
-      const embed = new discord.MessageEmbed()
-        .setColor("LIGHT_GREY")
-        .setTitle("Examples")
-        .addFields(
-          // Sadly discord strips whitespace from the front of the code,
-          // And codeblocks can't be used in codeblocks
-          { name: "Hello World", value: "$racket \\`(display \"Hello World\")\\`" },
+      // Discord embeds don't allow leading  whitespace
+      // Which is needed to indent code properly
+      // So a normal message is sent instead
+
+      const examples = [
+          { title: "Hello World", value: "> $racket \\`(display \"Hello World\")\\`" },
           {
-            name: "Fibonacci", value:
-              "$racket \\`\\`\\`scheme\n" +
-              "(define (fib n)\n" +
-              "(if (<= n 2)\n" +
-              "1\n" +
-              "(+ (fib (- n 1)) (fib (- n 2)))))\n" +
-              "\n" +
-              "(fib 30)\n" +
-              "\\`\\`\\`" 
+            title: "Fibonacci",
+            value:
+              "> $racket \\`\\`\\`scheme\n" +
+              "> (define (fib n)\n" +
+              "> _ _ (if (<= n 2)\n" +
+              "> _ _   1\n" +
+              "> _ _   (+ (fib (- n 1)) (fib (- n 2)))))\n" +
+              "> \n" +
+              "> (fib 30) ; Racket prints the last expression automatically\n" +
+              "> \\`\\`\\`" 
           },
           {
-            name: "Choose Language", value: "$run \\`\\`\\`scheme\n" +
-              "#lang racket\n" +
-              "(second (reverse (append (list 1 2 3) (list 4))))\n" +
-              "\\`\\`\\`"
-          }
-        );
+            title: "Choose Language",
+            value:
+              "> $run \\`\\`\\`scheme\n" +
+              "> #lang racket\n" +
+              "> (second (reverse (append (list 1 2 3) (list 4))))\n" +
+              "> \\`\\`\\`"
+          },
+        ];
 
-      await msg.channel.send(embed);
+      const body = "**Examples**\n\n" + examples.reduce((acc, example) => {
+        return `${acc}${example.title}\n${example.value}\n\n`;
+      }, "");
+
+      await msg.channel.send(body);
     } catch (error) {
       logger.error(error);
     }
