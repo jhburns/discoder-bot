@@ -44,7 +44,7 @@ client.on("ready", () => {
   logger.info(`Registered commands: ${commands.map(c => '$' + c.name).join(", ")}.`);
 
   // Set status of help information
-  client.user.setActivity("$help - https://racket-lang.org/")
+  client.user.setActivity("$help - racket-lang.org")
     .then(presence => logger.info(`Activity set to '${presence.activities[0].name}'`))
     .catch(e => logger.info(e));
 });

@@ -1,5 +1,3 @@
-import discord from "discord.js";
-
 export default {
   name: "examples",
   about: "Show some example of Racket.",
@@ -22,7 +20,7 @@ export default {
               "> _ _   (+ (fib (- n 1)) (fib (- n 2)))))\n" +
               "> \n" +
               "> (fib 30) ; Racket prints the last expression automatically\n" +
-              "> \\`\\`\\`" 
+              ">\\`\\`\\`" 
           },
           {
             title: "Choose Language",

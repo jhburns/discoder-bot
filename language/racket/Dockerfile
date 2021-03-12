@@ -11,7 +11,7 @@ WORKDIR /code/
 # Install raco tools
 COPY info.rkt .
 # No way to make this quiet it seems
-RUN raco pkg install --user --auto --type dir /code/
+RUN raco pkg install --auto --scope installation /code/
 
 COPY --chown=bot entrypoint.sh /code/
 RUN chmod 500 entrypoint.sh
