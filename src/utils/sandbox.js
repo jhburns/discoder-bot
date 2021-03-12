@@ -6,9 +6,7 @@ const softTimeout = 18;
 
 // In MB
 const memoryLimit = 150;
-const swapLimit = 250;
-
-
+const swapLimit = 450;
 
 async function evaluate(docker, image, ext, sourcePath) {  
   const container = await docker.createContainer({

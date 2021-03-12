@@ -36,8 +36,6 @@ export default {
         } else {
           await msg.channel.send(helpers.makeUnsuccessful(code, executionInfo));
         }
-      } catch (error) {
-        logger.error(error);
       } finally {
         sourceCleanup();
       }

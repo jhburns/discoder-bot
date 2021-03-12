@@ -22,7 +22,7 @@ export default {
         // Send 'In Progress' embed, and start the sandbox concurrently
         const responsePromise = msg.channel.send(helpers.makeRunning(code));
 
-        const executionPromise = sandbox.execute(
+        const executionPromise = sandbox.evaluate(
           docker, process.env.RACKET_IMAGE_NAME, ".rkt", sourcePath
         );
 
@@ -36,8 +36,6 @@ export default {
         } else {
           await msg.channel.send(helpers.makeUnsuccessful(code, executionInfo));
         }
-      } catch (error) {
-        logger.error(error);
       } finally {
         sourceCleanup();
       }
