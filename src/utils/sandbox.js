@@ -7,15 +7,25 @@ const softTimeout = 18;
 // In MB
 const memoryLimit = 150;
 const swapLimit = 450;
+const tmpfsLimit = 50;
 
-async function evaluate(docker, image, ext, sourcePath) {  
+async function evaluate(docker, image, ext, sourcePath, options) {
+  // Set options to default if not provided
+  options = options || {};
+  const isWritable = options.isWritable || true;
+  const cmd = options.cmd || undefined;
+
   const container = await docker.createContainer({
     // Combine stdout and stderr into one stream
     Tty: true,
     Image: image,
+    Cmd: cmd,
+    StdinOnce: true,
     HostConfig: {
       // Source is mounted read-only
       Binds: [`${sourcePath}:/code/source${ext}:ro`],
+      // If writeable, attach a temporary and writable directory
+      Tmpfs: isWritable ? { "/code/writeable": `rw,exec,nodev,nosuid,size=${tmpfsLimit}m` } : undefined,
       // Delete container after it terminates
       AutoRemove: true,
       // Prevent forkbombs
@@ -73,4 +83,4 @@ async function evaluate(docker, image, ext, sourcePath) {
   return { output, exitCode, time: process.hrtime(startTime) };
 }
 
-export default { evaluate, softTimeout, memoryLimit, swapLimit };
+export default { evaluate, softTimeout, memoryLimit, swapLimit, tmpfsLimit };

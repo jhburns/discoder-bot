@@ -10,8 +10,9 @@ import racket from "./commands/racket.js";
 import examples from "./commands/examples.js";
 import run from "./commands/run.js";
 import packages from "./commands/packages.js"
+import exe from "./commands/exe.js"
 
-const commands = [help, ping, racket, examples, run, packages];
+const commands = [help, ping, racket, examples, run, packages, exe];
 
 // Check if auth token exists
 if (process.env.DISCORD_AUTH_TOKEN === undefined) {
