@@ -180,7 +180,7 @@ function makeUnsuccessful(code, executionInfo) {
       isKilled = true;
       break;
     case 124:
-      reason = "Code Timed Out";
+      reason = "Code Stopped";
       isKilled = true;
       break;
     default:
@@ -201,8 +201,8 @@ function makeUnsuccessful(code, executionInfo) {
 
   if (isKilled) {
     embed.setFooter("Sorry, your code was likely terminated due to timing out or running out of memory. " +
-      `It can run for around ${sandbox.softTimeout} seconds, ` + 
-      `and use at most ${sandbox.memoryLimit + sandbox.swapLimit} MB.`);
+      `It can run for at most ${sandbox.hardTimeout} seconds, ` + 
+      `and use at most ${sandbox.swapLimit} MB.`);
   }
 
   return embed;

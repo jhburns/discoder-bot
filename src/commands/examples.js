@@ -1,6 +1,6 @@
 export default {
   name: "examples",
-  about: "Show some example of Racket.",
+  about: "Show some examples of Racket.",
   usage: "$examples",
   callback: async ({ msg, logger }) => {
     try {

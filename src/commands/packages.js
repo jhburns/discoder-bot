@@ -9,7 +9,7 @@ export default {
   usage: "$packages",
   callback: async ({ msg, logger, docker, tempDir }) => {
     try {
-      // Executes code to read the 'info.rkt' file
+      // Executes code to display the 'info.rkt' file
       const code = 
         "#lang racket/base\n" +
         "\n" +
