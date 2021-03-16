@@ -102,3 +102,7 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Ignore deployment secrets
+deploy/.secrets/*
+!deploy/.secrets/.gitinclude

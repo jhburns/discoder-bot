@@ -7,7 +7,6 @@ export default {
       // Discord embeds don't allow leading  whitespace
       // Which is needed to indent code properly
       // So a normal message is sent instead
-
       const examples = [
           { title: "Hello World", value: "> $racket \\`(display \"Hello World\")\\`" },
           {
