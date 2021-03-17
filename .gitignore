@@ -106,3 +106,7 @@ dist
 # Ignore deployment secrets
 deploy/.secrets/*
 !deploy/.secrets/.gitinclude
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
