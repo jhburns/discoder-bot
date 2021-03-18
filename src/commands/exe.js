@@ -24,7 +24,7 @@ export default {
 
         const executionPromise = sandbox.evaluate(
           docker,
-          process.env.RACKET_IMAGE_NAME,
+          process.env.RUNTIME_IMAGE_NAME,
           ".rkt",
           sourcePath,
           {

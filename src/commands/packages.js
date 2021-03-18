@@ -25,7 +25,7 @@ export default {
         await fs.writeFile(sourcePath, code);
 
         const executionInfo = await sandbox.evaluate(
-          docker, process.env.RACKET_IMAGE_NAME, ".rkt", sourcePath
+          docker, process.env.RUNTIME_IMAGE_NAME, ".rkt", sourcePath
         );
 
         const embed = new discord.MessageEmbed()

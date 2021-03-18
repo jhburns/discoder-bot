@@ -23,7 +23,7 @@ export default {
         const responsePromise = msg.channel.send(helpers.makeRunning(code));
 
         const executionPromise = sandbox.evaluate(
-          docker, process.env.RACKET_IMAGE_NAME, ".rkt", sourcePath
+          docker, process.env.RUNTIME_IMAGE_NAME, ".rkt", sourcePath
         );
 
         // Await for code to finish execution, and then delete in-progress message 

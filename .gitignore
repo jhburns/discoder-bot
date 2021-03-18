@@ -110,3 +110,6 @@ deploy/.secrets/*
 # .tfstate files
 *.tfstate
 *.tfstate.*
+
+# .tfvar files
+*.tfvars
