@@ -83,4 +83,4 @@ async function evaluate(docker, image, ext, sourcePath, options) {
   return { output, exitCode, time: process.hrtime(startTime) };
 }
 
-export default { evaluate, softTimeout, memoryLimit, swapLimit, tmpfsLimit };
+export default { evaluate, softTimeout, hardTimeout, memoryLimit, swapLimit, tmpfsLimit };
