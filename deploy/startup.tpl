@@ -7,6 +7,10 @@ set -euf -o pipefail
 if [[ $(swapon -s | wc -l) -lt 2 ]];
 then
   echo "-----------Enabling Swap-----------"
+  # Also add 'ubuntu' user to docker group,
+  # So containers can be run without root
+  groupadd docker
+  usermod -aG docker ubuntu
 
   # Add swap, none is enable by default
   fallocate -l 3G /swapfile
@@ -20,11 +24,6 @@ then
 
   update-grub
   reboot # Required for swap limit to take effect
-
-  # Also add 'ubuntu' user to docker group,
-  # So containers can be run without root
-  groupadd docker
-  usermod -aG docker ubuntu
 fi
 
 # Install packages and clone the bot code, if not already done
@@ -89,5 +88,5 @@ cd /home/ubuntu/discoder-bot/src/
 
 sudo DISCORD_AUTH_TOKEN=${discord_auth_token} \
   RUNTIME_IMAGE_NAME=${runtime_image_name} \
-  pm2 start index.js --log log.txt --exp-backoff-restart-delay=100 
+  pm2 start --name bot --log log.txt --exp-backoff-restart-delay=100 index.js
 EOF

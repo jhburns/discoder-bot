@@ -13,7 +13,7 @@ export default {
       const code = helpers.extractCode(body);
 
       const { path: sourcePath, cleanup: sourceCleanup, fd: _fd } = await tmpPromise.file(
-        { dir: tempDir.name, prefix: "run", postfix: ".tmp" }
+        { dir: tempDir.name, prefix: "run", postfix: ".tmp", mode: 0o555 }
       );
 
       try {

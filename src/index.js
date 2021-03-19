@@ -52,16 +52,16 @@ client.on("ready", () => {
 });
 
 // Catch network errors, and unhandled errors
-client.on('shardError', error => {
+client.on('shardError', (error) => {
   logger.error("A websocket connection encountered an error: ", error);
 });
 
-process.on("unhandledRejection", error => {
+process.on("unhandledRejection", (error) => {
   logger.error("Unhandled promise rejection:", error);
 });
 
 // Trigger when a message is received
-client.on("message", msg => {
+client.on("message", (msg) => {
   // Ignore bots
   if (msg.author.bot) {
     return;
