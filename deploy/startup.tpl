@@ -64,7 +64,7 @@ then
   docker pull ${image_repo_and_name}
 
 # Download code as ubuntu user, create cron job
-sudo -i -u ubuntu bash << EOF
+sudo -i -u ubuntu bash << "EOF"
   cd /home/ubuntu/
   git clone --depth 1 ${git_clone_repo_url}
 
@@ -73,8 +73,7 @@ sudo -i -u ubuntu bash << EOF
   npm ci
 
   # Write update script, using a hack to santatize the string
-  filepath="/home/ubuntu/pull-script.sh"
-  /bin/cat <<"PULL_EOF" >$filepath
+  /bin/cat << "PULL_EOF" > "/home/ubuntu/pull-script.sh"
 ${pull_script_source}
 PULL_EOF
 
@@ -83,6 +82,7 @@ PULL_EOF
 
   # Add script to crontab
   crontab -l > newtab
+  # Pulls every 15 minutes
   echo "*/15 * * * * /home/ubuntu/pull-script.sh 2>> /home/ubuntu/pull-script-errors.txt" >> newtab
   crontab newtab
   rm newtab
