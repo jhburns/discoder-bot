@@ -18,7 +18,8 @@ async function evaluate(docker, image, ext, sourcePath, options) {
   const container = await docker.createContainer({
     // Combine stdout and stderr into one stream
     Tty: true,
-    Image: image,
+    // Latest image is used if there are multiple versions downloaded
+    Image: image + ":latest",
     Cmd: cmd,
     StdinOnce: true,
     HostConfig: {
@@ -83,4 +84,4 @@ async function evaluate(docker, image, ext, sourcePath, options) {
   return { output, exitCode, time: process.hrtime(startTime) };
 }
 
-export default { evaluate, softTimeout, hardTimeout, memoryLimit, swapLimit, tmpfsLimit };
+export default { evaluate, softTimeout, hardTimeoutcd, memoryLimit, swapLimit, tmpfsLimit };

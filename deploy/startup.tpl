@@ -24,6 +24,8 @@ then
 
   update-grub
   reboot # Required for swap limit to take effect
+else
+    echo "(Skipping Enabling Swap)"
 fi
 
 # Install packages and clone the bot code, if not already done
@@ -59,25 +61,35 @@ then
   apt-get install --yes docker-ce=5:20.10.* docker-ce-cli=5:20.10.* containerd.io=1.4.*
 
   # Pull runtime image
-  docker pull ${runtime_image_name}
+  docker pull ${image_repo_and_name}
 
-# Download code as ubuntu user, start watchtower
+# Download code as ubuntu user, create cron job
 sudo -i -u ubuntu bash << EOF
   cd /home/ubuntu/
-  git clone --depth 1 https://github.com/jhburns/discoder-bot.git
+  git clone --depth 1 ${git_clone_repo_url}
 
   # Install packages
   cd /home/ubuntu/discoder-bot/src/
   npm ci
 
-  # Start watchtower in docker, 15 minute polling interval
-  docker run -d \
-      --name watchtower \
-      -v /var/run/docker.sock:/var/run/docker.sock \
-      --restart always \
-      containrrr/watchtower:1.1.6 --cleanup --monitor-only --interval 900
+  # Write update script, using a hack to santatize the string
+  filepath="/home/ubuntu/pull-script.sh"
+  /bin/cat <<"PULL_EOF" >$filepath
+${pull_script_source}
+PULL_EOF
+
+  chmod +x /home/ubuntu/pull-script.sh
+  echo "00 09 * * 1-5 echo hello" >> mycron
+
+  # Add script to crontab
+  crontab -l > newtab
+  echo "*/15 * * * * /home/ubuntu/pull-script.sh 2>> /home/ubuntu/pull-script-errors.txt" >> newtab
+  crontab newtab
+  rm newtab
 EOF
 
+else
+    echo "(Skipping System Setup)"
 fi
 
 echo "-----------Starting Bot-----------"
@@ -87,6 +99,6 @@ sudo -i -u ubuntu bash << EOF
 cd /home/ubuntu/discoder-bot/src/
 
 sudo DISCORD_AUTH_TOKEN=${discord_auth_token} \
-  RUNTIME_IMAGE_NAME=${runtime_image_name} \
+  RUNTIME_IMAGE_NAME=${image_repo_and_name}:latest \
   pm2 start --name bot --log log.txt --exp-backoff-restart-delay=100 index.js
 EOF

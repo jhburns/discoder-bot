@@ -16,6 +16,8 @@ RUN raco pkg install --auto --scope installation --no-docs /code/
 COPY --chown=bot entrypoint.sh /code/
 RUN chmod 500 entrypoint.sh
 
+ENV TEST=false
+
 # Switch to bot
 USER bot
 
