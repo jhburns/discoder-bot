@@ -27,10 +27,6 @@ resource "google_compute_firewall" "discoder_bot" {
   }
 }
 
-locals {
-  image_reference = "${var.image_repo_and_name}:latest"
-}
-
 // Create compute instance
 resource "google_compute_instance" "discoder_bot" {
   name = "discoder-bot-${random_id.instance_id.hex}"
@@ -66,10 +62,10 @@ resource "google_compute_instance" "discoder_bot" {
 
   metadata_startup_script = templatefile("./startup.tpl", {
     discord_auth_token = var.discord_auth_token
-    image_reference = local.image_reference
+    image_repo_and_name = var.image_repo_and_name
     git_clone_repo_url = var.git_clone_repo_url
     pull_script_source = templatefile("./pull-script.tpl", {
-      image_reference = local.image_reference
+      image_repo_and_name = var.image_repo_and_name
     })
   })
 }

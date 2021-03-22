@@ -2,7 +2,7 @@
 # This script is for pulling the latest image, and cleaning up unneeded ones
 
 # Pull latest image
-docker pull ${image_reference}:latest
+docker pull ${image_repo_and_name}:latest
 
 # Get all local image IDs, and convert that string to an array 
 images_output=$(docker images --no-trunc --format "{{.ID}}")
