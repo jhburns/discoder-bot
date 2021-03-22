@@ -19,7 +19,7 @@ export default {
               "> _ _   (+ (fib (- n 1)) (fib (- n 2)))))\n" +
               "> \n" +
               "> (fib 30) ; Racket prints the last expression automatically\n" +
-              ">\\`\\`\\`" 
+              "> \\`\\`\\`" 
           },
           {
             title: "Choose Language",
