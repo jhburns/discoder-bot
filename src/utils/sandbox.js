@@ -19,7 +19,7 @@ async function evaluate(docker, image, ext, sourcePath, options) {
     // Combine stdout and stderr into one stream
     Tty: true,
     // Latest image is used if there are multiple versions downloaded
-    Image: image + ":latest",
+    Image: image,
     Cmd: cmd,
     StdinOnce: true,
     HostConfig: {

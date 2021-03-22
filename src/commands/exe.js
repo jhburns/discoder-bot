@@ -13,7 +13,7 @@ export default {
       const code = helpers.extractCode(body);
 
       const { path: sourcePath, cleanup: sourceCleanup, fd: _fd } = await tmpPromise.file(
-        { dir: tempDir.name, prefix: "racket", postfix: ".tmp", mode: 0o555 }
+        { dir: tempDir.name, prefix: "racket", postfix: ".tmp", mode: 0o755 }
       );
 
       try {
@@ -24,7 +24,7 @@ export default {
 
         const executionPromise = sandbox.evaluate(
           docker,
-          process.env.RUNTIME_IMAGE_NAME,
+          process.env.RUNTIME_IMAGE_REFERENCE,
           ".rkt",
           sourcePath,
           {

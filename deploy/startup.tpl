@@ -61,7 +61,7 @@ then
   apt-get install --yes docker-ce=5:20.10.* docker-ce-cli=5:20.10.* containerd.io=1.4.*
 
   # Pull runtime image
-  docker pull ${image_repo_and_name}
+  docker pull ${image_reference}
 
 # Download code as ubuntu user, create cron job
 sudo -i -u ubuntu bash << "EOF"
@@ -99,6 +99,6 @@ sudo -i -u ubuntu bash << EOF
 cd /home/ubuntu/discoder-bot/src/
 
 sudo DISCORD_AUTH_TOKEN=${discord_auth_token} \
-  RUNTIME_IMAGE_NAME=${image_repo_and_name}:latest \
+  RUNTIME_IMAGE_REFERENCE=${image_reference}:latest \
   pm2 start --name bot --log log.txt --exp-backoff-restart-delay=100 index.js
 EOF
