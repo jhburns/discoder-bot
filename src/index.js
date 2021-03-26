@@ -61,47 +61,73 @@ process.on("unhandledRejection", (error) => {
 });
 
 // Trigger when a message is received
-client.on("message", (msg) => {
+client.on("message", async (msg) => {
   // Ignore bots
   if (msg.author.bot) {
     return;
   }
 
-  // Check if the message starts with an '$'
-  if (msg.content.substring(0, 1) !== '$') {
+  const integrationRole = msg.guild.roles.cache.find((role) => role.name === client.user.username);
+
+  // Ignore if this bot is not mentioned, or its integrated role is mentioned
+  if (!(msg.mentions.has(client.user.id) || msg.mentions.roles.has(integrationRole.id))) {
     return;
   }
 
-  // Remove the '!'
-  const content = msg.content.substring(1);
-  let currentName = "";
-  let body = "";
+  // Remove zero-width spaces that may exist due to copying examples
+  const content = msg.content.replace('\u200B', "");
 
-  // Split the content into the command name, and body
-  let i = 0;
-  while (content.length > i && !content[i].match(/\s+/)) {
-    i++;
-  }
+  for (const idString of [`<@!${client.user.id}>`, `<@&${integrationRole.id}>`]) {
 
-  currentName = content.substr(0, i);
-  body = content.substr(i + 1);
+    if (content.startsWith(idString)) {
+      // Remove bot mention
+      const noMention = content.substring(idString.length).trimStart();
+      let currentName = "";
+      let body = "";
 
-  // Check if any command matches the name
-  // And if so, call its callback
-  for (const command of commands) {
-    if (currentName === command.name) {
-      const _ignorePromise = command.callback({
-        msg,
-        client,
-        logger,
-        commands,
-        body,
-        commands,
-        docker, 
-        tempDir,
-      });
+      // Split the content into the command name, and body
+      let i = 0;
+      while (noMention.length > i && !noMention[i].match(/\s+/)) {
+        i++;
+      }
+
+      currentName = noMention.substr(0, i).replace('\u200B', "");
+      body = noMention.substr(i + 1);
+
+      // Check if any command matches the name
+      // And if so, call its callback
+      for (const command of commands) {
+        if (currentName === command.name) {
+          const _ignorePromise = command.callback({
+            msg,
+            client,
+            logger,
+            commands,
+            body,
+            commands,
+            docker,
+            tempDir,
+          });
+
+          return;
+        }
+      }
+
+      // If not command was found, return error
+      const embed = new discord.MessageEmbed()
+        .attachFiles(["./images/x.png"])
+        .setColor("RED")
+        .setTitle("Command Not Recognized")
+        .setThumbnail("attachment://x.png")
+        .addField(
+          `No command \`${currentName}\` found.`,
+          "Trying the command `help` to see a list of possible commands."
+        );
+
+      await msg.channel.send(embed);
     }
   }
+
 });
 
 // Login

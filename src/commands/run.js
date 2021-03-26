@@ -7,7 +7,7 @@ export default {
   name: "run",
   about: "Run your racket code, which should be in a single or multi-line codeblock. " +
     "You can specify a `#lang`.",
-  usage: "$run `#lang choice\nyour code`",
+  usage: "run `\n#lang choice\nyour code`",
   callback: async ({ msg, logger, docker, body, tempDir }) => {
     try {
       const code = helpers.extractCode(body);

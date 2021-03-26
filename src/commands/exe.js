@@ -7,7 +7,7 @@ export default {
   name: "exe",
   about: "Compile your racket code, then run it. " +
     "The `#lang racket/base` library is added at the top of your code for convenience.",
-  usage: "$exe `your code`",
+  usage: "exe `your code`",
   callback: async ({ msg, logger, docker, body, tempDir }) => {
     try {
       const code = helpers.extractCode(body);

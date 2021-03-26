@@ -6,7 +6,7 @@ import discord from "discord.js";
 export default {
   name: "packages",
   about: "List Racket packages installed.",
-  usage: "$packages",
+  usage: "packages",
   callback: async ({ msg, logger, docker, tempDir }) => {
     try {
       // Executes code to display the 'info.rkt' file

@@ -1,7 +1,7 @@
 export default {
   name: "examples",
   about: "Show some examples of Racket.",
-  usage: "$examples",
+  usage: "examples",
   callback: async ({ msg, logger }) => {
     try {
       // Discord embeds don't allow leading  whitespace

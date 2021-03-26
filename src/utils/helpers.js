@@ -173,15 +173,15 @@ function makeSuccessful(code, executionInfo) {
 function makeUnsuccessful(code, executionInfo) {
   // Determine reason for exiting non-zero
   let reason = "";
-  let isKilled = false;
+  let isTerminated = false;
   switch (executionInfo.exitCode) {
     case 137:
       reason = "Code Killed";
-      isKilled = true;
+      isTerminated = true;
       break;
     case 124:
       reason = "Code Stopped";
-      isKilled = true;
+      isTerminated = true;
       break;
     default:
       reason = "Code Failed Normally";
@@ -199,7 +199,7 @@ function makeUnsuccessful(code, executionInfo) {
         value: "```" + sanitizeOutput(executionInfo.output) + "```" + formatTime(executionInfo.time) },
     );
 
-  if (isKilled) {
+  if (isTerminated) {
     embed.setFooter("Sorry, your code was likely terminated due to timing out or running out of memory. " +
       `It can run for at most ${sandbox.hardTimeout} seconds, ` + 
       `and use at most ${sandbox.swapLimit} MB.`);
