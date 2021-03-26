@@ -4,15 +4,18 @@ export default {
   usage: "examples",
   callback: async ({ msg, logger }) => {
     try {
+      const botName = msg.guild.me.displayName;
+
       // Discord embeds don't allow leading  whitespace
       // Which is needed to indent code properly
       // So a normal message is sent instead
       const examples = [
-          { title: "Hello World", value: "> $racket \\`(display \"Hello World\")\\`" },
+          { title: "Hello World", value: "> @" + botName + " racket \\`(display \"Hello World\")\\`" },
           {
             title: "Fibonacci",
             value:
-              "> $racket \\`\\`\\`scheme\n" +
+              // Underscores make italic spaces, which aren't stripped by Discord
+              "> @" + botName + " racket \\`\\`\\`scheme\n" +
               "> (define (fib n)\n" +
               "> _ _ (if (<= n 2)\n" +
               "> _ _   1\n" +
@@ -24,7 +27,7 @@ export default {
           {
             title: "Choose Language",
             value:
-              "> $run \\`\\`\\`scheme\n" +
+              "> @" + botName + "run \\`\\`\\`scheme\n" +
               "> #lang racket\n" +
               "> (second (reverse (append (list 1 2 3) (list 4))))\n" +
               "> \\`\\`\\`"
