@@ -208,6 +208,16 @@ function makeUnsuccessful(code, executionInfo) {
   return embed;
 }
 
+function makeRateLimited() {
+  return new discord.MessageEmbed()
+    .attachFiles(["./images/x.png"])
+    .setColor("RED")
+    .setTitle("Sorry, Try Again Later")
+    .setThumbnail("attachment://x.png")
+    .addField("You Have Been Rate Limited", "Unfortunately, due to resource restrictions each user can " +
+       "only have one code snippet executing at a time. Wait until your other code is done, then retry.");
+}
+
 export default {
   CodeExtractionError,
   extractCode,
@@ -216,4 +226,5 @@ export default {
   makeParseError,
   makeRunning,
   sanitizeOutput,
+  makeRateLimited,
 };

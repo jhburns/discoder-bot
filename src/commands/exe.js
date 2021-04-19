@@ -8,13 +8,20 @@ export default {
   about: "Compile your racket code, then run it. " +
     "The `#lang racket/base` library is added at the top of your code for convenience.",
   usage: "exe `your code`",
-  callback: async ({ msg, logger, docker, body, tempDir }) => {
+  callback: async ({ msg, logger, docker, body, tempDir, usingSet }) => {
     try {
+      if (usingSet.has(msg.author.id)) {
+        await msg.channel.send(helpers.makeRateLimited());
+        return;
+      }
+
       const code = helpers.extractCode(body);
 
       const { path: sourcePath, cleanup: sourceCleanup, fd: _fd } = await tmpPromise.file(
         { dir: tempDir.name, prefix: "racket", postfix: ".tmp", mode: 0o755 }
       );
+
+      const usingCleanup = usingSet.addUser(msg.author.id);
 
       try {
         await fs.writeFile(sourcePath, "#lang racket/base\n" + code);
@@ -47,6 +54,7 @@ export default {
         }
       } finally {
         sourceCleanup();
+        usingCleanup();
       }
     } catch (error) {
       if (error instanceof helpers.CodeExtractionError) {

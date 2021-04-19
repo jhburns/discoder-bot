@@ -2,6 +2,7 @@ import discord from "discord.js";
 import Dockerode from "dockerode";
 import winston from "winston";
 import tmpPromise from "tmp-promise";
+import rateLimit from "./utils/rateLimit.js"
 
 // Register commands
 import help from "./commands/help.js";
@@ -22,6 +23,9 @@ if (process.env.DISCORD_AUTH_TOKEN === undefined) {
 // Create folder for temporary files such as source code
 tmpPromise.setGracefulCleanup(); // Cleanup resources on exit
 const tempDir = tmpPromise.dirSync({ prefix: 'discoder-bot_' }); // Created in /tmp on Linux
+
+// Create UsingSet so all commands share the same info
+const usingSet = new rateLimit.UsingSet();
 
 // Configure logger settings
 const logger = winston.createLogger({
@@ -107,6 +111,7 @@ client.on("message", async (msg) => {
             commands,
             docker,
             tempDir,
+            usingSet,
           });
 
           return;

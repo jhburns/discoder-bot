@@ -27,7 +27,7 @@ export default {
           {
             title: "Choose Language",
             value:
-              "> @" + botName + "run \\`\\`\\`scheme\n" +
+              "> @" + botName + " run \\`\\`\\`scheme\n" +
               "> #lang racket\n" +
               "> (second (reverse (append (list 1 2 3) (list 4))))\n" +
               "> \\`\\`\\`"

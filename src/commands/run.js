@@ -8,13 +8,20 @@ export default {
   about: "Run your racket code, which should be in a single or multi-line codeblock. " +
     "You can specify a `#lang`.",
   usage: "run `\n#lang choice\nyour code`",
-  callback: async ({ msg, logger, docker, body, tempDir }) => {
+  callback: async ({ msg, logger, docker, body, tempDir, usingSet }) => {
     try {
+      if (usingSet.has(msg.author.id)) {
+        await msg.channel.send(helpers.makeRateLimited());
+        return;
+      }
+
       const code = helpers.extractCode(body);
 
       const { path: sourcePath, cleanup: sourceCleanup, fd: _fd } = await tmpPromise.file(
         { dir: tempDir.name, prefix: "run", postfix: ".tmp", mode: 0o755 }
       );
+
+      const usingCleanup = usingSet.addUser(msg.author.id);
 
       try {
         await fs.writeFile(sourcePath, code);
@@ -38,6 +45,7 @@ export default {
         }
       } finally {
         sourceCleanup();
+        usingCleanup();
       }
     } catch (error) {
       if (error instanceof helpers.CodeExtractionError) {
