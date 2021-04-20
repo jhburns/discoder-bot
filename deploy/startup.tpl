@@ -35,7 +35,7 @@ then
 
   # Install Node.js
   curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
-  apt-get install -y nodejs=14.16.0-1nodesource1
+  apt-get install -y nodejs=14.16.*
 
   # Install pm2 globally
   npm install -g pm2@4.5.5 pm2-logrotate@2.7.0
