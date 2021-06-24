@@ -18,7 +18,7 @@ export default {
       const code = helpers.extractCode(body);
 
       const { path: sourcePath, cleanup: sourceCleanup, fd: _fd } = await tmpPromise.file(
-        { dir: tempDir.name, prefix: "racket", postfix: ".tmp", mode: 0o755 }
+        { dir: tempDir.name, prefix: "exe", postfix: ".tmp", mode: 0o755 }
       );
 
       const usingCleanup = usingSet.addUser(msg.author.id);
@@ -35,10 +35,10 @@ export default {
           ".rkt",
           sourcePath,
           {
-            // Include a tmpfs mount at '/code/writeable'
-            isWriteable: true,
+            // Include a tmpfs mount at '/code/writable'
+            isWritable: true,
             // Override default CMD, uses 'sh -c' to combine commands
-            cmd: ["sh", "-c", "raco exe -o /code/writeable/source source.rkt && /code/writeable/source"],
+            cmd: ["sh", "-c", "raco exe -o /code/writable/source source.rkt && /code/writable/source"],
           },
         );
 

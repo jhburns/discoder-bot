@@ -12,8 +12,9 @@ const tmpfsLimit = 50;
 async function evaluate(docker, image, ext, sourcePath, options) {
   // Set options to default if not provided
   options = options || {};
-  const isWritable = options.isWritable || true;
+  const isWritable = options.isWritable || false;
   const cmd = options.cmd || undefined;
+  const entrypoint = options.entrypoint || undefined;
 
   const container = await docker.createContainer({
     // Combine stdout and stderr into one stream
@@ -21,16 +22,17 @@ async function evaluate(docker, image, ext, sourcePath, options) {
     // Latest image is used if there are multiple versions downloaded
     Image: image,
     Cmd: cmd,
+    Entrypoint: entrypoint,
     StdinOnce: true,
     HostConfig: {
       // Source is mounted read-only
       Binds: [`${sourcePath}:/code/source${ext}:ro`],
-      // If writeable, attach a temporary and writable directory
-      Tmpfs: isWritable ? { "/code/writeable": `rw,exec,nodev,nosuid,size=${tmpfsLimit}m` } : undefined,
+      // If writable, attach a temporary and writable directory
+      Tmpfs: isWritable ? { "/code/writable": `rw,exec,nodev,nosuid,size=${tmpfsLimit}m` } : undefined,
       // Delete container after it terminates
       AutoRemove: true,
       // Prevent forkbombs
-      PidsLimit: 256,
+      PidsLimit: 64,
       // Container filesystem is also only read only
       ReadonlyRootfs: true,
       // 150 MB

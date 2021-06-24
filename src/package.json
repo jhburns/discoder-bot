@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node -r dotenv/config index.js",
-    "test": "TODO"
+    "test": "node -r dotenv/config ./node_modules/mocha/bin/mocha --parallel false --timeouts 25000"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,8 @@
     "dotenv": "^8.2.0",
     "tmp-promise": "^3.0.2",
     "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "mocha": "^8.3.2"
   }
 }

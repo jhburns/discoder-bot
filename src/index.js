@@ -47,10 +47,10 @@ const client = new discord.Client();
 // Print ready info
 client.on("ready", () => {
   logger.info(`Logged in as ${client.user.tag}!`);
-  logger.info(`Registered commands: ${commands.map(c => '$' + c.name).join(", ")}.`);
+  logger.info(`Registered commands: ${commands.map(c => c.name).join(", ")}.`);
 
   // Set status of help information
-  client.user.setActivity("$help - racket-lang.org")
+  client.user.setActivity("help - racket-lang.org")
     .then(presence => logger.info(`Activity set to '${presence.activities[0].name}'`))
     .catch(e => logger.info(e));
 });

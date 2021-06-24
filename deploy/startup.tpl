@@ -70,7 +70,7 @@ sudo -i -u ubuntu bash << "EOF"
 
   # Install packages
   cd /home/ubuntu/discoder-bot/src/
-  npm ci
+  npm ci --production
 
   # Write update script, using a hack to santatize the string
   /bin/cat << "PULL_EOF" > "/home/ubuntu/pull-script.sh"
