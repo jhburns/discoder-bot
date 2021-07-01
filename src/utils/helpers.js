@@ -21,12 +21,11 @@ function extractCode(content) {
     // Remove first three backticks
     content = content.substring(3);
 
-
     // Remove the language alias if it exists
     // Matches only lowercase letters, and numbers
     const isAlphanumeric = (s) => s.length === 1 && s.match(/[a-z0-9]/i);
-    let i = 0;
 
+    let i = 0;
     while (isAlphanumeric(content.substring(i, i + 1))) {
       i++;
     }
@@ -120,6 +119,7 @@ function makeSnippet(code) {
       snippet += "...";
     }
 
+    // TODO, make this not language specific
     return "```scheme\n" + snippet + "```";
   }
 }
